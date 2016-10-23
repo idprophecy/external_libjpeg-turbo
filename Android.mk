@@ -9,6 +9,16 @@ include $(CLEAR_VARS)
 #                 preferred to thumb mode for libjpeg-turbo.
 LOCAL_ARM_MODE := arm
 
+ifeq ($(strip $(TARGET_ARCH)),arm64)
+  LOCAL_CFLAGS += -DAVOID_CPUINFO_CHECK
+  ifneq ($(filter $(TARGET_CPU_VARIANT),cortex-a53),)
+    LOCAL_CFLAGS += -DTARGET_IS_CORTEX_A53
+  endif
+  ifeq ($(strip $(TARGET_IS_CORTEX-A53)),true)
+    LOCAL_CFLAGS += -DTARGET_IS_CORTEX_A53
+  endif
+endif
+
 LOCAL_SRC_FILES := \
     jcapimin.c jcapistd.c jccoefct.c jccolor.c jcdctmgr.c jchuff.c \
     jcinit.c jcmainct.c jcmarker.c jcmaster.c jcomapi.c jcparam.c \
