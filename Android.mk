@@ -66,7 +66,7 @@ LOCAL_C_INCLUDES_x86_64 += $(LOCAL_PATH)/simd
 LOCAL_SRC_FILES_mips += jsimd_none.c
 LOCAL_SRC_FILES_mips64 += jsimd_none.c
 
-LOCAL_CFLAGS += -O3 -fstrict-aliasing
+LOCAL_CFLAGS += -O3 -fstrict-aliasing -DJDCT_DEFAULT=JDCT_IFAST
 LOCAL_CFLAGS += -Wno-unused-parameter
 LOCAL_EXPORT_C_INCLUDE_DIRS := $(LOCAL_PATH)
 
