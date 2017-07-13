@@ -9,7 +9,7 @@
 #define JPEG_LIB_VERSION 62
 
 /* libjpeg-turbo version */
-#define LIBJPEG_TURBO_VERSION 1.5.1
+#define LIBJPEG_TURBO_VERSION 1.5.2
 
 /* libjpeg-turbo version in integer form */
 #define LIBJPEG_TURBO_VERSION_NUMBER 0
@@ -84,7 +84,8 @@
 #ifdef __SIZEOF_SIZE_T__
 #define SIZEOF_SIZE_T __SIZEOF_SIZE_T__
 #else
+#define SIZEOF_SIZE_T 4
 #error cannot determine the size of size_t
 #endif
 
-#endif // __JCONFIG_H__
+#endif

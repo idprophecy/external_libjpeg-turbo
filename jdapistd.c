@@ -18,6 +18,7 @@
  * whole decompression library into a transcoder.
  */
 
+#include "jinclude.h"
 #include "jdmainct.h"
 #include "jdcoefct.h"
 #include "jdsample.h"

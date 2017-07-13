@@ -19,6 +19,7 @@
  * Also, the input side (only) is used when reading a file for transcoding.
  */
 
+#include "jinclude.h"
 #include "jdcoefct.h"
 #include "jpegcomp.h"
 

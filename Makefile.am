@@ -202,6 +202,8 @@ MD5_PPM_3x2_FLOAT_SSE = 42876ab9e5c2f76a87d08db5fbd57956
 MD5_JPEG_3x2_FLOAT_PROG_32BIT = a8c17daf77b457725ec929e215b603f8
 MD5_PPM_3x2_FLOAT_32BIT = 42876ab9e5c2f76a87d08db5fbd57956
 MD5_PPM_3x2_FLOAT_64BIT = d6fbc71153b3d8ded484dbc17c7b9cf4
+MD5_JPEG_3x2_FLOAT_PROG_387 = bc6dbbefac2872f6b9d6c4a0ae60c3c0
+MD5_PPM_3x2_FLOAT_387 = bcc5723c61560463ac60f772e742d092
 MD5_JPEG_3x2_IFAST_PROG = 1396cc2b7185cfe943d408c9d305339e
 MD5_PPM_3x2_IFAST = 3975985ef6eeb0a2cdc58daa651ccc00
 MD5_PPM_420M_ISLOW_2_1 = 4ca6be2a6f326ff9eaab63e70a8259c0
@@ -249,6 +251,8 @@ MD5_PPM_3x2_FLOAT_SSE = 1a75f36e5904d6fc3a85a43da9ad89bb
 MD5_JPEG_3x2_FLOAT_PROG_32BIT = 9bca803d2042bd1eb03819e2bf92b3e5
 MD5_PPM_3x2_FLOAT_32BIT = f6bfab038438ed8f5522fbd33595dcdc
 MD5_PPM_3x2_FLOAT_64BIT = 0e917a34193ef976b679a6b069b1be26
+MD5_JPEG_3x2_FLOAT_PROG_387 = 1657664a410e0822c924b54f6f65e6e9
+MD5_PPM_3x2_FLOAT_387 = cb0a1f027f3d2917c902b5640214e025
 MD5_JPEG_3x2_IFAST_PROG = 1ee5d2c1a77f2da495f993c8c7cceca5
 MD5_PPM_3x2_IFAST = fd283664b3b49127984af0a7f118fccd
 MD5_JPEG_420_ISLOW_ARI = e986fb0a637a8d833d96e8a6d6d84ea1
@@ -337,7 +341,7 @@ MD5_PPM_444_TILE = 7964e41e67cfb8d0a587c0aa4798f9c3
 # Test compressing from/decompressing to an arbitrary subregion of a larger
 # image buffer
 	cp $(srcdir)/testimages/testorig.ppm testout_tile.ppm
-	./tjbench testout_tile.ppm 95 -rgb -quiet -tile -benchtime 0.01 >/dev/null 2>&1
+	./tjbench testout_tile.ppm 95 -rgb -quiet -tile -benchtime 0.01 -warmup 0 >/dev/null 2>&1
 	for i in 8 16 32 64 128; do \
 		md5/md5cmp $(MD5_PPM_GRAY_TILE) testout_tile_GRAY_Q95_$$i\x$$i.ppm; \
 	done
@@ -356,7 +360,7 @@ MD5_PPM_444_TILE = 7964e41e67cfb8d0a587c0aa4798f9c3
 	done
 	rm -f testout_tile_GRAY_* testout_tile_420_* testout_tile_422_* testout_tile_444_*
 
-	./tjbench testout_tile.ppm 95 -rgb -fastupsample -quiet -tile -benchtime 0.01 >/dev/null 2>&1
+	./tjbench testout_tile.ppm 95 -rgb -fastupsample -quiet -tile -benchtime 0.01 -warmup 0 >/dev/null 2>&1
 	md5/md5cmp $(MD5_PPM_420M_8x8_TILE) testout_tile_420_Q95_8x8.ppm
 	for i in 16 32 64 128; do \
 		md5/md5cmp $(MD5_PPM_420M_TILE) testout_tile_420_Q95_$$i\x$$i.ppm; \
@@ -481,6 +485,9 @@ endif
 #                  x86-64 compilers)
 # FLOATTEST=64bit  validate against the exepected results from the C code
 #                  when running on a 64-bit FPU
+# FLOATTEST=387  validate against the expected results from the C code when
+#                the 387 FPU is being used for floating point math (which is
+#                generally the default with x86 compilers)
 
 # CC: RGB->YCC  SAMP: fullsize/int  FDCT: float  ENT: prog huff
 	./cjpeg -sample 3x2 -dct float -prog -outfile testout_3x2_float_prog.jpg $(srcdir)/testimages/testorig.ppm
@@ -488,6 +495,8 @@ endif
 		md5/md5cmp $(MD5_JPEG_3x2_FLOAT_PROG_SSE) testout_3x2_float_prog.jpg; \
 	elif [ "${FLOATTEST}" = "32bit" -o "${FLOATTEST}" = "64bit" ]; then \
 		md5/md5cmp $(MD5_JPEG_3x2_FLOAT_PROG_32BIT) testout_3x2_float_prog.jpg; \
+	elif [ "${FLOATTEST}" = "387" ]; then \
+		md5/md5cmp $(MD5_JPEG_3x2_FLOAT_PROG_387) testout_3x2_float_prog.jpg; \
 	fi
 # CC: YCC->RGB  SAMP: fullsize/int  IDCT: float  ENT: prog huff
 	./djpeg -dct float -outfile testout_3x2_float.ppm testout_3x2_float_prog.jpg
@@ -497,6 +506,8 @@ endif
 		md5/md5cmp $(MD5_PPM_3x2_FLOAT_32BIT) testout_3x2_float.ppm; \
 	elif [ "${FLOATTEST}" = "64bit" ]; then \
 		md5/md5cmp $(MD5_PPM_3x2_FLOAT_64BIT) testout_3x2_float.ppm; \
+	elif [ "${FLOATTEST}" = "387" ]; then \
+		md5/md5cmp $(MD5_PPM_3x2_FLOAT_387) testout_3x2_float.ppm; \
 	fi
 	rm -f testout_3x2_float.ppm testout_3x2_float_prog.jpg
 
@@ -646,51 +657,6 @@ if WITH_ARITH_DEC
 	rm -f testout_444_islow_ari_crop37x37,0,0.ppm
 endif
 	rm -f testout_444_islow_ari.jpg
-endif
-
-# Partial decode tests.  These tests are designed to cover all of the possible
-# code paths in jpeg_skip_scanlines().
-
-# Context rows: Yes  Intra-iMCU row: Yes  iMCU row prefetch: No   ENT: huff
-	./djpeg -dct int -skip 15,31 -ppm -outfile testout_420_islow_skip15,31.ppm $(srcdir)/testimages/$(TESTORIG)
-	md5/md5cmp $(MD5_PPM_420_ISLOW_SKIP15_31) testout_420_islow_skip15,31.ppm
-	rm testout_420_islow_skip15,31.ppm
-# Context rows: Yes  Intra-iMCU row: No   iMCU row prefetch: Yes  ENT: arith
-if WITH_ARITH_DEC
-	./djpeg -dct int -skip 16,139 -ppm -outfile testout_420_islow_ari_skip16,139.ppm $(srcdir)/testimages/testimgari.jpg
-	md5/md5cmp $(MD5_PPM_420_ISLOW_ARI_SKIP16_139) testout_420_islow_ari_skip16,139.ppm
-	rm testout_420_islow_ari_skip16,139.ppm
-endif
-# Context rows: Yes  Intra-iMCU row: No   iMCU row prefetch: No   ENT: prog huff
-	./cjpeg -dct int -prog -outfile testout_420_islow_prog.jpg $(srcdir)/testimages/testorig.ppm
-	./djpeg -dct int -crop 62x62+71+71 -ppm -outfile testout_420_islow_prog_crop62x62,71,71.ppm testout_420_islow_prog.jpg
-	md5/md5cmp $(MD5_PPM_420_ISLOW_PROG_CROP62x62_71_71) testout_420_islow_prog_crop62x62,71,71.ppm
-	rm -f testout_420_islow_prog_crop62x62,71,71.ppm testout_420_islow_prog.jpg
-# Context rows: Yes  Intra-iMCU row: No   iMCU row prefetch: No   ENT: arith
-if WITH_ARITH_DEC
-	./djpeg -dct int -crop 53x53+4+4 -ppm -outfile testout_420_islow_ari_crop53x53,4,4.ppm $(srcdir)/testimages/testimgari.jpg
-	md5/md5cmp $(MD5_PPM_420_ISLOW_ARI_CROP53x53_4_4) testout_420_islow_ari_crop53x53,4,4.ppm
-	rm -f testout_420_islow_ari_crop53x53,4,4.ppm
-endif
-# Context rows: No   Intra-iMCU row: Yes  ENT: huff
-	./cjpeg -dct int -sample 1x1 -outfile testout_444_islow.jpg $(srcdir)/testimages/testorig.ppm
-	./djpeg -dct int -skip 1,6 -ppm -outfile testout_444_islow_skip1,6.ppm testout_444_islow.jpg
-	md5/md5cmp $(MD5_PPM_444_ISLOW_SKIP1_6) testout_444_islow_skip1,6.ppm
-	rm testout_444_islow_skip1,6.ppm testout_444_islow.jpg
-# Context rows: No   Intra-iMCU row: No   ENT: prog huff
-	./cjpeg -dct int -prog -sample 1x1 -outfile testout_444_islow_prog.jpg $(srcdir)/testimages/testorig.ppm
-	./djpeg -dct int -crop 98x98+13+13 -ppm -outfile testout_444_islow_prog_crop98x98,13,13.ppm testout_444_islow_prog.jpg
-	md5/md5cmp $(MD5_PPM_444_ISLOW_PROG_CROP98x98_13_13) testout_444_islow_prog_crop98x98,13,13.ppm
-	rm -f testout_444_islow_prog_crop98x98,13,13.ppm testout_444_islow_prog.jpg
-# Context rows: No   Intra-iMCU row: No   ENT: arith
-if WITH_ARITH_ENC
-	./cjpeg -dct int -arithmetic -sample 1x1 -outfile testout_444_islow_ari.jpg $(srcdir)/testimages/testorig.ppm
-if WITH_ARITH_DEC
-	./djpeg -dct int -crop 37x37+0+0 -ppm -outfile testout_444_islow_ari_crop37x37,0,0.ppm testout_444_islow_ari.jpg
-	md5/md5cmp $(MD5_PPM_444_ISLOW_ARI_CROP37x37_0_0) testout_444_islow_ari_crop37x37,0,0.ppm
-	rm -f testout_444_islow_ari_crop37x37,0,0.ppm
-endif
-	rm testout_444_islow_ari.jpg
 endif
 
 	./jpegtran -crop 120x90+20+50 -transpose -perfect -outfile testout_crop.jpg $(srcdir)/testimages/$(TESTORIG)

@@ -16,6 +16,7 @@
  * supplies the equivalent of the main buffer in that case.
  */
 
+#include "jinclude.h"
 #include "jdmainct.h"
 
 

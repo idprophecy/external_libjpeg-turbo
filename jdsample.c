@@ -24,6 +24,7 @@
  *   Pub. by IEEE Computer Society Press, Los Alamitos, CA. ISBN 0-8186-8944-7.
  */
 
+#include "jinclude.h"
 #include "jdsample.h"
 #include "jsimd.h"
 #include "jpegcomp.h"
